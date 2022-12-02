@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sv_raid_reader = {git = "https://github.com/SteveCookTU/sv_raid_reader.git", rev = "ca8c692" }
+sv_raid_reader = {git = "https://github.com/SteveCookTU/sv_raid_reader.git", rev = "4cac9ed" }
 
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]

@@ -1,6 +1,10 @@
 use crate::details_window::DetailsWindow;
-use eframe::egui::{Context, Vec2, Visuals, Widget};
+use eframe::egui::{Context, DroppedFile, Vec2, Visuals, Widget};
 use eframe::{egui, App, CreationContext, Frame};
+#[cfg(not(target_arch = "wasm32"))]
+use std::fs::File;
+#[cfg(not(target_arch = "wasm32"))]
+use std::io::Read;
 use sv_raid_reader::{
     RaidEncounter, DIFFICULTY_01, DIFFICULTY_02, DIFFICULTY_03, DIFFICULTY_04, DIFFICULTY_05,
     DIFFICULTY_06, SPECIES,
@@ -10,6 +14,7 @@ pub struct SVRaidLookup {
     star_level: u8,
     species_filter: String,
     encounters: &'static [RaidEncounter],
+    event_encounters: Vec<RaidEncounter>,
     details_window: Option<DetailsWindow>,
 }
 
@@ -19,6 +24,7 @@ impl Default for SVRaidLookup {
             star_level: 1,
             species_filter: String::new(),
             encounters: &DIFFICULTY_01,
+            event_encounters: vec![],
             details_window: None,
         }
     }
@@ -148,7 +154,56 @@ impl App for SVRaidLookup {
                             ui.end_row();
                         }
                     }
+                    ui.end_row();
+                    for (i, encounter) in self
+                        .event_encounters
+                        .iter()
+                        .filter(|e| {
+                            e.species != 0
+                                && SPECIES[e.species as usize]
+                                    .to_lowercase()
+                                    .contains(&self.species_filter.to_lowercase())
+                        })
+                        .enumerate()
+                    {
+                        ui.vertical_centered_justified(|ui| {
+                            if ui.button(SPECIES[encounter.species as usize]).clicked() {
+                                if let Some(details) = self.details_window.as_mut() {
+                                    *details = DetailsWindow::new(encounter);
+                                } else {
+                                    self.details_window = Some(DetailsWindow::new(encounter));
+                                }
+                            }
+                        });
+                        if (i + 1) % 5 == 0 {
+                            ui.end_row();
+                        }
+                    }
                 });
         });
+
+        if !ctx.input().raw.dropped_files.is_empty() {
+            let files: Vec<DroppedFile> = ctx.input().raw.dropped_files.clone();
+            if let Some(file) = files.first() {
+                #[cfg(not(target_arch = "wasm32"))]
+                if let Some(path) = file.path.as_ref() {
+                    if let Ok(mut file) = File::open(path) {
+                        let mut buf = Vec::new();
+                        file.read_to_end(&mut buf).unwrap();
+                        if let Ok(raid_table_array) = sv_raid_reader::delivery_enemy_table_generated::root_as_delivery_raid_enemy_table_array(&buf) {
+                            self.event_encounters = raid_table_array.values().into_iter().map(|t| t.raidEnemyInfo().into()).collect::<Vec<_>>();
+                        }
+                    }
+                }
+
+                #[cfg(target_arch = "wasm32")]
+                if let Some(bytes) = file.bytes.as_ref() {
+                    let bytes = bytes.to_vec();
+                    if let Ok(raid_table_array) = sv_raid_reader::delivery_enemy_table_generated::root_as_delivery_raid_enemy_table_array(&bytes) {
+                        self.event_encounters = raid_table_array.values().into_iter().map(|t| t.raidEnemyInfo().into()).collect::<Vec<_>>();
+                    }
+                }
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
-
+#[cfg(not(target_arch = "wasm32"))]
 use eframe::Renderer;
+
 use sv_raid_lookup::app::SVRaidLookup;
 
 // When compiling natively:
