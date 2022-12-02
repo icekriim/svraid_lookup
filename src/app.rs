@@ -89,6 +89,8 @@ impl App for SVRaidLookup {
                     egui::Grid::new("stars_levels").show(ui, |ui| {
                         ui.label(&details.stars);
                         ui.label(&details.level);
+                        ui.label(&details.shiny);
+                        ui.label(&details.gender);
                         ui.end_row();
                     });
                     ui.horizontal(|ui| {
@@ -100,6 +102,7 @@ impl App for SVRaidLookup {
                         });
                         ui.add_space(30.0);
                         ui.vertical(|ui| {
+                            ui.label(&details.nature);
                             ui.label(&details.iv_type);
                             if !details.ivs.is_empty() {
                                 ui.label(&details.ivs);
@@ -122,6 +125,13 @@ impl App for SVRaidLookup {
                                 ui.end_row();
                                 ui.label(&details.shield_gem_damage_rate);
                                 ui.label(&details.shield_change_gem_damage_rate);
+                                if !details.second_shield_hp_trigger.is_empty() {
+                                    ui.end_row();
+                                    ui.label(&details.second_shield_hp_trigger);
+                                    ui.label(&details.second_shield_time_trigger);
+                                    ui.end_row();
+                                    ui.label(&details.second_shield_damage_rate);
+                                }
                             });
                         });
                     });

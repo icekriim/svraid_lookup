@@ -1,17 +1,20 @@
 use std::time::Duration;
 use sv_raid_reader::{
-    personal_table, ExtraActionTrigger, ExtraActionType, GemType, IvType, PersonalInfo,
-    RaidEncounter, Tokusei, ABILITIES, MOVES, SPECIES,
+    personal_table, ExtraActionTrigger, ExtraActionType, GemType, Gender, IvType, PersonalInfo,
+    RaidEncounter, Seikaku, ShinyType, Tokusei, ABILITIES, MOVES, NATURES, SPECIES,
 };
 
 #[derive(Clone)]
 pub struct DetailsWindow {
     pub species: String,
     pub level: String,
+    pub shiny: String,
     pub stars: String,
     pub moves: [String; 4],
     pub gem_type: String,
     pub ability: String,
+    pub nature: String,
+    pub gender: String,
     pub flawless_ivs: String,
     pub iv_type: String,
     pub ivs: String,
@@ -23,6 +26,9 @@ pub struct DetailsWindow {
     pub shield_damage_rate: String,
     pub shield_gem_damage_rate: String,
     pub shield_change_gem_damage_rate: String,
+    pub second_shield_hp_trigger: String,
+    pub second_shield_time_trigger: String,
+    pub second_shield_damage_rate: String,
     pub extra_actions: [String; 6],
     pub raid_time: String,
     pub command_time: String,
@@ -110,6 +116,11 @@ impl DetailsWindow {
             - (total_time.as_secs_f32() * (f32::from(encounter.shield_time_trigger) / 100.0))
                 .ceil();
 
+        let second_shield_time_trigger = total_time.as_secs_f32()
+            - (total_time.as_secs_f32()
+                * (f32::from(encounter.second_shield_time_trigger) / 100.0))
+                .ceil();
+
         let mut extra_actions = [
             "".to_string(),
             "".to_string(),
@@ -162,9 +173,27 @@ impl DetailsWindow {
             );
         }
 
+        let shiny = match encounter.shiny {
+            ShinyType::Random => "Random",
+            ShinyType::No => "No",
+            ShinyType::Yes => "Yes",
+        };
+
+        let nature = match encounter.seikaku {
+            Seikaku::Random => "Random",
+            i => NATURES[i as usize],
+        };
+
+        let gender = match encounter.gender {
+            Gender::Random => "Random",
+            Gender::Male => "Male",
+            Gender::Female => "Female",
+        };
+
         Self {
             species: format!("Species: {}", SPECIES[encounter.species as usize]),
             level: format!("Level: {}", encounter.level),
+            shiny: format!("Shiny: {}", shiny),
             stars: format!("Difficulty: {}", encounter.difficulty),
             moves: [
                 format!(" - {}", MOVES[encounter.reusable_moves[0] as usize]),
@@ -174,13 +203,15 @@ impl DetailsWindow {
             ],
             gem_type: format!("Tera Type: {}", gem_type),
             ability: format!("Ability: {}", ability),
+            nature: format!("Nature: {}", nature),
+            gender: format!("Gender: {}", gender),
             flawless_ivs: format!("Flawless IVs: {}", encounter.flawless_ivs),
             iv_type: format!("IV Type: {}", iv_type),
             ivs,
             evs,
             hp: encounter.hp_coef.to_string(),
-            shield_hp_trigger: format!("Trigger Shield HP: {}%", encounter.shield_hp_trigger),
-            shield_time_trigger: format!("Trigger Shield Time: {}s", shield_time_trigger),
+            shield_hp_trigger: format!("Shield Trigger HP: {}%", encounter.shield_hp_trigger),
+            shield_time_trigger: format!("Shield Trigger Time: {}s", shield_time_trigger),
             shield_cancel_damage: format!(
                 "Shield Cancel Damage: {}%",
                 encounter.shield_cancel_damage
@@ -193,6 +224,18 @@ impl DetailsWindow {
             shield_change_gem_damage_rate: format!(
                 "Shield Change Gem Damage Rate: {}%",
                 encounter.shield_gem_damage_rate
+            ),
+            second_shield_hp_trigger: format!(
+                "Second Shield Trigger HP: {}%",
+                encounter.second_shield_hp_trigger
+            ),
+            second_shield_time_trigger: format!(
+                "Second Shield Trigger Time: {}s",
+                second_shield_time_trigger
+            ),
+            second_shield_damage_rate: format!(
+                "Second Shield Damage Rate: {}%",
+                encounter.second_shield_damage_rate
             ),
             extra_actions,
             raid_time: format!("Raid Time: {}s", encounter.game_limit),
