@@ -5,6 +5,7 @@ use eframe::{egui, App, CreationContext, Frame};
 use std::fs::File;
 #[cfg(not(target_arch = "wasm32"))]
 use std::io::Read;
+use std::sync::{Arc, Mutex};
 use sv_raid_reader::{
     RaidEncounter, DIFFICULTY_01, DIFFICULTY_02, DIFFICULTY_03, DIFFICULTY_04, DIFFICULTY_05,
     DIFFICULTY_06, SPECIES,
@@ -14,7 +15,7 @@ pub struct SVRaidLookup {
     star_level: u8,
     species_filter: String,
     encounters: &'static [RaidEncounter],
-    event_encounters: Vec<RaidEncounter>,
+    event_encounters: Arc<Mutex<Vec<RaidEncounter>>>,
     details_window: Option<DetailsWindow>,
 }
 
@@ -24,7 +25,7 @@ impl Default for SVRaidLookup {
             star_level: 1,
             species_filter: String::new(),
             encounters: &DIFFICULTY_01,
-            event_encounters: vec![],
+            event_encounters: Arc::new(Mutex::new(vec![])),
             details_window: None,
         }
     }
@@ -63,6 +64,22 @@ impl App for SVRaidLookup {
                 ui.vertical_centered_justified(|ui| {
                     egui::TextEdit::singleline(&mut self.species_filter).ui(ui);
                 });
+            });
+            ui.add_space(15.0);
+            ui.vertical_centered_justified(|ui| {
+                if ui.button("Load Latest Event Data").clicked() {
+                    let request = ehttp::Request::get("https://citrusbolt.net/bcat/v/latest/raid/files/raid_enemy_array");
+                    let clone = self.event_encounters.clone();
+                    ehttp::fetch(request, move |response| {
+                        if let Ok(response) = response {
+                            if let Ok(raid_table_array) = sv_raid_reader::delivery_enemy_table_generated::root_as_delivery_raid_enemy_table_array(&response.bytes) {
+                                if let Ok(mut event_encounters) = clone.lock() {
+                                    *event_encounters = raid_table_array.values().into_iter().map(|t| t.raidEnemyInfo().into()).collect::<Vec<_>>();
+                                }
+                            }
+                        }
+                    });
+                }
             });
         });
 
@@ -157,6 +174,8 @@ impl App for SVRaidLookup {
                     ui.end_row();
                     for (i, encounter) in self
                         .event_encounters
+                        .lock()
+                        .unwrap()
                         .iter()
                         .filter(|e| {
                             e.species != 0
@@ -191,7 +210,9 @@ impl App for SVRaidLookup {
                         let mut buf = Vec::new();
                         file.read_to_end(&mut buf).unwrap();
                         if let Ok(raid_table_array) = sv_raid_reader::delivery_enemy_table_generated::root_as_delivery_raid_enemy_table_array(&buf) {
-                            self.event_encounters = raid_table_array.values().into_iter().map(|t| t.raidEnemyInfo().into()).collect::<Vec<_>>();
+                            if let Ok(mut event_encounters) = self.event_encounters.lock() {
+                                *event_encounters = raid_table_array.values().into_iter().map(|t| t.raidEnemyInfo().into()).collect::<Vec<_>>();
+                            }
                         }
                     }
                 }
@@ -200,7 +221,9 @@ impl App for SVRaidLookup {
                 if let Some(bytes) = file.bytes.as_ref() {
                     let bytes = bytes.to_vec();
                     if let Ok(raid_table_array) = sv_raid_reader::delivery_enemy_table_generated::root_as_delivery_raid_enemy_table_array(&bytes) {
-                        self.event_encounters = raid_table_array.values().into_iter().map(|t| t.raidEnemyInfo().into()).collect::<Vec<_>>();
+                        if let Ok(mut event_encounters) = self.event_encounters.lock() {
+                            *event_encounters = raid_table_array.values().into_iter().map(|t| t.raidEnemyInfo().into()).collect::<Vec<_>>();
+                        }
                     }
                 }
             }

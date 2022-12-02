@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 sv_raid_reader = {git = "https://github.com/SteveCookTU/sv_raid_reader.git", rev = "4cac9ed" }
+ehttp = "0.2.0"
 
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
