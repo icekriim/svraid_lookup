@@ -281,15 +281,31 @@ impl App for SVRaidLookup {
 
         if !ctx.input().raw.dropped_files.is_empty() {
             let files: Vec<DroppedFile> = ctx.input().raw.dropped_files.clone();
-            if let Some(file) = files.first() {
+
+            for file in files.iter() {
                 #[cfg(not(target_arch = "wasm32"))]
                 if let Some(path) = file.path.as_ref() {
                     if let Ok(mut file) = File::open(path) {
                         let mut buf = Vec::new();
                         file.read_to_end(&mut buf).unwrap();
-                        if let Ok(raid_table_array) = sv_raid_reader::delivery_enemy_table_generated::root_as_delivery_raid_enemy_table_array(&buf) {
-                            if let Ok(mut event_encounters) = self.event_encounters.lock() {
-                                *event_encounters = raid_table_array.values().into_iter().map(|t| t.raidEnemyInfo().into()).collect::<Vec<_>>();
+
+                        if buf.len() == 30000 {
+                            if let Ok(raid_table_array) = sv_raid_reader::delivery_enemy_table_generated::root_as_delivery_raid_enemy_table_array(&buf) {
+                                if let Ok(mut event_encounters) = self.event_encounters.lock() {
+                                    *event_encounters = raid_table_array.values().into_iter().map(|t| t.raidEnemyInfo().into()).collect::<Vec<_>>();
+                                }
+                            }
+                        } else if buf.len() == 27456 {
+                            if let Ok(fixed_item_table) = sv_raid_reader::raid_fixed_reward_item_generated::root_as_raid_fixed_reward_item_array(&buf) {
+                                if let Ok(mut fixed_event_items) = self.fixed_event_item.lock() {
+                                    *fixed_event_items = fixed_item_table.into();
+                                }
+                            }
+                        } else if buf.len() == 53464 {
+                            if let Ok(lottery_item_table) = sv_raid_reader::raid_lottery_reward_item_generated::root_as_raid_lottery_reward_item_array(&buf) {
+                                if let Ok(mut lottery_event_items) = self.lottery_event_items.lock() {
+                                    *lottery_event_items = lottery_item_table.into();
+                                }
                             }
                         }
                     }
@@ -297,10 +313,24 @@ impl App for SVRaidLookup {
 
                 #[cfg(target_arch = "wasm32")]
                 if let Some(bytes) = file.bytes.as_ref() {
-                    let bytes = bytes.to_vec();
-                    if let Ok(raid_table_array) = sv_raid_reader::delivery_enemy_table_generated::root_as_delivery_raid_enemy_table_array(&bytes) {
-                        if let Ok(mut event_encounters) = self.event_encounters.lock() {
-                            *event_encounters = raid_table_array.values().into_iter().map(|t| t.raidEnemyInfo().into()).collect::<Vec<_>>();
+                    let buf = bytes.to_vec();
+                    if buf.len() == 30000 {
+                        if let Ok(raid_table_array) = sv_raid_reader::delivery_enemy_table_generated::root_as_delivery_raid_enemy_table_array(&buf) {
+                            if let Ok(mut event_encounters) = self.event_encounters.lock() {
+                                *event_encounters = raid_table_array.values().into_iter().map(|t| t.raidEnemyInfo().into()).collect::<Vec<_>>();
+                            }
+                        }
+                    } else if buf.len() == 27456 {
+                        if let Ok(fixed_item_table) = sv_raid_reader::raid_fixed_reward_item_generated::root_as_raid_fixed_reward_item_array(&buf) {
+                            if let Ok(mut fixed_event_items) = self.fixed_event_item.lock() {
+                                *fixed_event_items = fixed_item_table.into();
+                            }
+                        }
+                    } else if buf.len() == 53464 {
+                        if let Ok(lottery_item_table) = sv_raid_reader::raid_lottery_reward_item_generated::root_as_raid_lottery_reward_item_array(&buf) {
+                            if let Ok(mut lottery_event_items) = self.lottery_event_items.lock() {
+                                *lottery_event_items = lottery_item_table.into();
+                            }
                         }
                     }
                 }
