@@ -1,7 +1,8 @@
 use std::time::Duration;
 use sv_raid_reader::{
-    personal_table, ExtraActionTrigger, ExtraActionType, GemType, Gender, IvType, PersonalInfo,
-    RaidEncounter, Seikaku, ShinyType, Tokusei, ABILITIES, MOVES, NATURES, SPECIES,
+    personal_table, ExtraActionTrigger, ExtraActionType, GemType, Gender, ItemTable, IvType,
+    PersonalInfo, RaidEncounter, Seikaku, ShinyType, Tokusei, ABILITIES, FIXED_ITEMS, ITEMS,
+    LOTTERY_ITEMS, MOVES, NATURES, SPECIES,
 };
 
 #[derive(Clone)]
@@ -32,10 +33,16 @@ pub struct DetailsWindow {
     pub extra_actions: [String; 6],
     pub raid_time: String,
     pub command_time: String,
+    pub fixed_items: String,
+    pub lottery_items: Vec<String>,
 }
 
 impl DetailsWindow {
-    pub fn new(encounter: &RaidEncounter) -> Self {
+    pub fn new(
+        encounter: &RaidEncounter,
+        fixed_table: Option<&ItemTable>,
+        lottery_table: Option<&ItemTable>,
+    ) -> Self {
         let gem_type = match encounter.gem_type {
             GemType::Normal => "Normal",
             GemType::Fighting => "Fighting",
@@ -161,7 +168,7 @@ impl DetailsWindow {
             };
             let move_name = action.move_no.map(|i| MOVES[i as usize]).unwrap_or("");
             extra_actions[i] = format!(
-                "Type: {} Trigger: {}\nAt: {}{}",
+                "Type: {}\nTrigger: {}\nAt: {}{}",
                 action_type,
                 trigger,
                 value,
@@ -189,6 +196,62 @@ impl DetailsWindow {
             Gender::Male => "Male",
             Gender::Female => "Female",
         };
+
+        let fixed_items = if let Some(fixed_items) = fixed_table {
+            fixed_items
+                .0
+                .get(&encounter.fixed_item_table)
+                .map(|l| l.as_slice())
+                .unwrap_or(&[])
+        } else {
+            FIXED_ITEMS
+                .0
+                .get(&encounter.fixed_item_table)
+                .map(|l| l.as_slice())
+                .unwrap_or(&[])
+        };
+
+        let fixed_items = fixed_items
+            .iter()
+            .map(|i| {
+                let item = match i.id {
+                    0xFFFF => "Crafting Resource(s)",
+                    0xFFFE => "Tera Shard(s)",
+                    _ => ITEMS[i.id as usize],
+                };
+                format!("Item: {}\nAmount: {}\n", item, i.amount)
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        let lottery_items = if let Some(lottery_items) = lottery_table {
+            lottery_items
+                .0
+                .get(&encounter.lottery_item_table)
+                .map(|l| l.as_slice())
+                .unwrap_or(&[])
+        } else {
+            LOTTERY_ITEMS
+                .0
+                .get(&encounter.lottery_item_table)
+                .map(|l| l.as_slice())
+                .unwrap_or(&[])
+        };
+
+        let lottery_items = lottery_items
+            .iter()
+            .map(|i| {
+                let item = match i.id {
+                    0xFFFF => "Crafting Resource(s)",
+                    0xFFFE => "Tera Shard(s)",
+                    _ => ITEMS[i.id as usize],
+                };
+                format!(
+                    "Item: {}\nAmount: {}\nRate: {:.2}%",
+                    item, i.amount, i.probability
+                )
+            })
+            .collect::<Vec<_>>();
 
         Self {
             species: format!("Species: {}", SPECIES[encounter.species as usize]),
@@ -240,6 +303,8 @@ impl DetailsWindow {
             extra_actions,
             raid_time: format!("Raid Time: {}s", encounter.game_limit),
             command_time: format!("Command Time: {}s", encounter.game_limit),
+            fixed_items: format!("Fixed Items:\n\n{}", fixed_items),
+            lottery_items,
         }
     }
 }

@@ -1,14 +1,15 @@
 use crate::details_window::DetailsWindow;
 use eframe::egui::{Context, DroppedFile, Vec2, Visuals, Widget};
 use eframe::{egui, App, CreationContext, Frame};
+use std::collections::HashMap;
 #[cfg(not(target_arch = "wasm32"))]
 use std::fs::File;
 #[cfg(not(target_arch = "wasm32"))]
 use std::io::Read;
 use std::sync::{Arc, Mutex};
 use sv_raid_reader::{
-    RaidEncounter, DIFFICULTY_01, DIFFICULTY_02, DIFFICULTY_03, DIFFICULTY_04, DIFFICULTY_05,
-    DIFFICULTY_06, SPECIES,
+    ItemTable, RaidEncounter, DIFFICULTY_01, DIFFICULTY_02, DIFFICULTY_03, DIFFICULTY_04,
+    DIFFICULTY_05, DIFFICULTY_06, SPECIES,
 };
 
 pub struct SVRaidLookup {
@@ -16,6 +17,8 @@ pub struct SVRaidLookup {
     species_filter: String,
     encounters: &'static [RaidEncounter],
     event_encounters: Arc<Mutex<Vec<RaidEncounter>>>,
+    fixed_event_item: Arc<Mutex<ItemTable>>,
+    lottery_event_items: Arc<Mutex<ItemTable>>,
     details_window: Option<DetailsWindow>,
 }
 
@@ -26,6 +29,8 @@ impl Default for SVRaidLookup {
             species_filter: String::new(),
             encounters: &DIFFICULTY_01,
             event_encounters: Arc::new(Mutex::new(vec![])),
+            fixed_event_item: Arc::new(Mutex::new(ItemTable(HashMap::default()))),
+            lottery_event_items: Arc::new(Mutex::new(ItemTable(HashMap::default()))),
             details_window: None,
         }
     }
@@ -75,6 +80,30 @@ impl App for SVRaidLookup {
                             if let Ok(raid_table_array) = sv_raid_reader::delivery_enemy_table_generated::root_as_delivery_raid_enemy_table_array(&response.bytes) {
                                 if let Ok(mut event_encounters) = clone.lock() {
                                     *event_encounters = raid_table_array.values().into_iter().map(|t| t.raidEnemyInfo().into()).collect::<Vec<_>>();
+                                }
+                            }
+                        }
+                    });
+
+                    let request = ehttp::Request::get("https://raw.githubusercontent.com/SteveCookTU/sv_raid_lookup/master/raid_data/latest_fixed_reward_item_array");
+                    let clone = self.fixed_event_item.clone();
+                    ehttp::fetch(request, move |response| {
+                        if let Ok(response) = response {
+                            if let Ok(fixed_item_table) = sv_raid_reader::raid_fixed_reward_item_generated::root_as_raid_fixed_reward_item_array(&response.bytes) {
+                                if let Ok(mut fixed_event_items) = clone.lock() {
+                                    *fixed_event_items = fixed_item_table.into();
+                                }
+                            }
+                        }
+                    });
+
+                    let request = ehttp::Request::get("https://raw.githubusercontent.com/SteveCookTU/sv_raid_lookup/master/raid_data/latest_lottery_reward_item_array");
+                    let clone = self.fixed_event_item.clone();
+                    ehttp::fetch(request, move |response| {
+                        if let Ok(response) = response {
+                            if let Ok(lottery_item_table) = sv_raid_reader::raid_lottery_reward_item_generated::root_as_raid_lottery_reward_item_array(&response.bytes) {
+                                if let Ok(mut lottery_event_items) = clone.lock() {
+                                    *lottery_event_items = lottery_item_table.into();
                                 }
                             }
                         }
@@ -149,6 +178,24 @@ impl App for SVRaidLookup {
                             }
                         });
                     ui.add_space(15.0);
+                    ui.horizontal(|ui| {
+                        ui.vertical(|ui| {
+                            ui.label(&details.fixed_items);
+                        });
+                        ui.add_space(50.0);
+                        ui.vertical(|ui| {
+                            ui.label("Random Items:");
+                            ui.add_space(5.0);
+                            egui::Grid::new("lottery_items").show(ui, |ui| {
+                                for (i, item) in details.lottery_items.iter().enumerate() {
+                                    ui.label(item);
+                                    if (i + 1) % 3 == 0 {
+                                        ui.end_row();
+                                    }
+                                }
+                            });
+                        });
+                    });
                 });
             });
         }
@@ -171,9 +218,10 @@ impl App for SVRaidLookup {
                         ui.vertical_centered_justified(|ui| {
                             if ui.button(SPECIES[encounter.species as usize]).clicked() {
                                 if let Some(details) = self.details_window.as_mut() {
-                                    *details = DetailsWindow::new(encounter);
+                                    *details = DetailsWindow::new(encounter, None, None);
                                 } else {
-                                    self.details_window = Some(DetailsWindow::new(encounter));
+                                    self.details_window =
+                                        Some(DetailsWindow::new(encounter, None, None));
                                 }
                             }
                         });
@@ -197,10 +245,20 @@ impl App for SVRaidLookup {
                     {
                         ui.vertical_centered_justified(|ui| {
                             if ui.button(SPECIES[encounter.species as usize]).clicked() {
+                                let fixed_items = self.fixed_event_item.lock().unwrap();
+                                let lottery_items = self.lottery_event_items.lock().unwrap();
                                 if let Some(details) = self.details_window.as_mut() {
-                                    *details = DetailsWindow::new(encounter);
+                                    *details = DetailsWindow::new(
+                                        encounter,
+                                        Some(&fixed_items),
+                                        Some(&lottery_items),
+                                    );
                                 } else {
-                                    self.details_window = Some(DetailsWindow::new(encounter));
+                                    self.details_window = Some(DetailsWindow::new(
+                                        encounter,
+                                        Some(&fixed_items),
+                                        Some(&lottery_items),
+                                    ));
                                 }
                             }
                         });
