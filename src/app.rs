@@ -68,7 +68,7 @@ impl App for SVRaidLookup {
             ui.add_space(15.0);
             ui.vertical_centered_justified(|ui| {
                 if ui.button("Load Latest Event Data").clicked() {
-                    let request = ehttp::Request::get("http://citrusbolt.net/bcat/v/latest/raid/files/raid_enemy_array");
+                    let mut request = ehttp::Request::get("https://citrusbolt.net/bcat/v/latest/raid/files/raid_enemy_array");
                     let clone = self.event_encounters.clone();
                     ehttp::fetch(request, move |response| {
                         if let Ok(response) = response {
