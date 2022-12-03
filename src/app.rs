@@ -98,7 +98,7 @@ impl App for SVRaidLookup {
                     });
 
                     let request = ehttp::Request::get("https://citrusbolt.net/bcat/v/latest/raid/files/lottery_reward_item_array");
-                    let clone = self.fixed_event_item.clone();
+                    let clone = self.lottery_event_items.clone();
                     ehttp::fetch(request, move |response| {
                         if let Ok(response) = response {
                             if let Ok(lottery_item_table) = sv_raid_reader::raid_lottery_reward_item_generated::root_as_raid_lottery_reward_item_array(&response.bytes) {
