@@ -68,7 +68,7 @@ impl App for SVRaidLookup {
             ui.add_space(15.0);
             ui.vertical_centered_justified(|ui| {
                 if ui.button("Load Latest Event Data").clicked() {
-                    let mut request = ehttp::Request::get("https://github.com/SteveCookTU/sv_raid_lookup/blob/master/raid_data/latest_delivery?raw=true");
+                    let request = ehttp::Request::get("https://raw.githubusercontent.com/SteveCookTU/sv_raid_lookup/master/raid_data/latest_delivery");
                     let clone = self.event_encounters.clone();
                     ehttp::fetch(request, move |response| {
                         if let Ok(response) = response {
