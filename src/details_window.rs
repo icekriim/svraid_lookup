@@ -33,7 +33,7 @@ pub struct DetailsWindow {
     pub extra_actions: [String; 6],
     pub raid_time: String,
     pub command_time: String,
-    pub fixed_items: String,
+    pub fixed_items: Vec<String>,
     pub lottery_items: Vec<String>,
 }
 
@@ -221,8 +221,7 @@ impl DetailsWindow {
                 };
                 format!("Item: {}\nAmount: {}\n", item, i.amount)
             })
-            .collect::<Vec<_>>()
-            .join("\n");
+            .collect::<Vec<_>>();
 
         let lottery_items = if let Some(lottery_items) = lottery_table {
             lottery_items
@@ -303,7 +302,7 @@ impl DetailsWindow {
             extra_actions,
             raid_time: format!("Raid Time: {}s", encounter.game_limit),
             command_time: format!("Command Time: {}s", encounter.game_limit),
-            fixed_items: format!("Fixed Items:\n\n{}", fixed_items),
+            fixed_items,
             lottery_items,
         }
     }
