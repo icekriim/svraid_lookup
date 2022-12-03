@@ -271,7 +271,7 @@ impl DetailsWindow {
             iv_type: format!("IV Type: {}", iv_type),
             ivs,
             evs,
-            hp: encounter.hp_coef.to_string(),
+            hp: format!("HP: {}", encounter.hp_coef),
             shield_hp_trigger: format!("Shield Trigger HP: {}%", encounter.shield_hp_trigger),
             shield_time_trigger: format!("Shield Trigger Time: {}s", shield_time_trigger),
             shield_cancel_damage: format!(

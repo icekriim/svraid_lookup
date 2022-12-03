@@ -131,6 +131,7 @@ impl App for SVRaidLookup {
                         });
                         ui.add_space(30.0);
                         ui.vertical(|ui| {
+                            ui.label()
                             ui.label(&details.nature);
                             ui.label(&details.iv_type);
                             if !details.ivs.is_empty() {
