@@ -246,7 +246,7 @@ impl DetailsWindow {
                     _ => ITEMS[i.id as usize],
                 };
                 format!(
-                    "Item: {}\nAmount: {}\nRate: {:.2}%",
+                    "Item: {}\nAmount: {}\nRate: {:.2}%\n",
                     item, i.amount, i.probability
                 )
             })
