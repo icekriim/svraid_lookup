@@ -2,7 +2,7 @@ use std::time::Duration;
 use sv_raid_reader::{
     personal_table, ExtraActionTrigger, ExtraActionType, GemType, Gender, ItemTable, IvType,
     PersonalInfo, RaidEncounter, Seikaku, ShinyType, Tokusei, ABILITIES, FIXED_ITEMS, ITEMS,
-    LOTTERY_ITEMS, MOVES, NATURES, SPECIES,
+    LOTTERY_ITEMS, MOVES, NATURES, SPECIES, TYPES,
 };
 
 #[derive(Clone)]
@@ -21,6 +21,8 @@ pub struct DetailsWindow {
     pub ivs: String,
     pub evs: String,
     pub hp: String,
+    pub base_stats: String,
+    pub base_type: String,
     pub shield_hp_trigger: String,
     pub shield_time_trigger: String,
     pub shield_cancel_damage: String,
@@ -252,6 +254,22 @@ impl DetailsWindow {
             })
             .collect::<Vec<_>>();
 
+        let base_stats = personal_table::SV[encounter.species as usize].stats();
+        let stats_str = base_stats
+            .into_iter()
+            .map(|i| format!("{:0>2}", i))
+            .collect::<Vec<_>>()
+            .join(" - ");
+
+        let type_1 = personal_table::SV[encounter.species as usize].get_type_1();
+        let type_2 = personal_table::SV[encounter.species as usize].get_type_2();
+
+        let base_type = if type_1 != type_2 && type_2 < TYPES.len() {
+            format!("Base Type: {}/{}", TYPES[type_1], TYPES[type_2])
+        } else {
+            format!("Base Type: {}", TYPES[type_1])
+        };
+
         Self {
             species: format!("Species: {}", SPECIES[encounter.species as usize]),
             level: format!("Level: {}", encounter.level),
@@ -272,6 +290,8 @@ impl DetailsWindow {
             ivs,
             evs,
             hp: format!("HP: {}", encounter.hp_coef),
+            base_stats: format!("Base Stats: {}", stats_str),
+            base_type,
             shield_hp_trigger: format!("Shield Trigger HP: {}%", encounter.shield_hp_trigger),
             shield_time_trigger: format!("Shield Trigger Time: {}s", shield_time_trigger),
             shield_cancel_damage: format!(

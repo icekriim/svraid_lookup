@@ -110,16 +110,89 @@ impl App for SVRaidLookup {
                     });
                 }
             });
+
+            ui.add_space(15.0);
+
+            egui::ScrollArea::vertical().show(ui, |ui| {
+                egui::Grid::new("encounters")
+                    .spacing(Vec2::new(5.0, 2.0))
+                    .min_col_width(100.0)
+                    .show(ui, |ui| {
+                        for (i, encounter) in self
+                            .encounters
+                            .iter()
+                            .filter(|e| {
+                                SPECIES[e.species as usize]
+                                    .to_lowercase()
+                                    .contains(&self.species_filter.to_lowercase())
+                            })
+                            .enumerate()
+                        {
+                            ui.vertical_centered_justified(|ui| {
+                                if ui.button(SPECIES[encounter.species as usize]).clicked() {
+                                    if let Some(details) = self.details_window.as_mut() {
+                                        *details = DetailsWindow::new(encounter, None, None);
+                                    } else {
+                                        self.details_window =
+                                            Some(DetailsWindow::new(encounter, None, None));
+                                    }
+                                }
+                            });
+                            if (i + 1) % 2 == 0 {
+                                ui.end_row();
+                            }
+                        }
+                        ui.end_row();
+                        for (i, encounter) in self
+                            .event_encounters
+                            .lock()
+                            .unwrap()
+                            .iter()
+                            .filter(|e| {
+                                e.species != 0
+                                    && SPECIES[e.species as usize]
+                                    .to_lowercase()
+                                    .contains(&self.species_filter.to_lowercase())
+                            })
+                            .enumerate()
+                        {
+                            ui.vertical_centered_justified(|ui| {
+                                if ui.button(SPECIES[encounter.species as usize]).clicked() {
+                                    let fixed_items = self.fixed_event_item.lock().unwrap();
+                                    let lottery_items = self.lottery_event_items.lock().unwrap();
+                                    if let Some(details) = self.details_window.as_mut() {
+                                        *details = DetailsWindow::new(
+                                            encounter,
+                                            Some(&fixed_items),
+                                            Some(&lottery_items),
+                                        );
+                                    } else {
+                                        self.details_window = Some(DetailsWindow::new(
+                                            encounter,
+                                            Some(&fixed_items),
+                                            Some(&lottery_items),
+                                        ));
+                                    }
+                                }
+                            });
+                            if (i + 1) % 2 == 0 {
+                                ui.end_row();
+                            }
+                        }
+                    });
+            });
         });
 
         if let Some(details) = self.details_window.as_ref() {
-            egui::Window::new(&details.species).show(ctx, |ui| {
+            egui::CentralPanel::default().show(ctx, |ui| {
                 ui.vertical_centered_justified(|ui| {
                     egui::Grid::new("stars_levels").show(ui, |ui| {
                         ui.label(&details.stars);
                         ui.label(&details.level);
                         ui.label(&details.shiny);
                         ui.label(&details.gender);
+                        ui.label(&details.base_type);
+                        ui.label(&details.base_stats);
                         ui.end_row();
                     });
                     ui.horizontal(|ui| {
@@ -209,75 +282,6 @@ impl App for SVRaidLookup {
                 });
             });
         }
-
-        egui::CentralPanel::default().show(ctx, |ui| {
-            egui::Grid::new("encounters")
-                .spacing(Vec2::new(20.0, 20.0))
-                .min_col_width(100.0)
-                .show(ui, |ui| {
-                    for (i, encounter) in self
-                        .encounters
-                        .iter()
-                        .filter(|e| {
-                            SPECIES[e.species as usize]
-                                .to_lowercase()
-                                .contains(&self.species_filter.to_lowercase())
-                        })
-                        .enumerate()
-                    {
-                        ui.vertical_centered_justified(|ui| {
-                            if ui.button(SPECIES[encounter.species as usize]).clicked() {
-                                if let Some(details) = self.details_window.as_mut() {
-                                    *details = DetailsWindow::new(encounter, None, None);
-                                } else {
-                                    self.details_window =
-                                        Some(DetailsWindow::new(encounter, None, None));
-                                }
-                            }
-                        });
-                        if (i + 1) % 5 == 0 {
-                            ui.end_row();
-                        }
-                    }
-                    ui.end_row();
-                    for (i, encounter) in self
-                        .event_encounters
-                        .lock()
-                        .unwrap()
-                        .iter()
-                        .filter(|e| {
-                            e.species != 0
-                                && SPECIES[e.species as usize]
-                                    .to_lowercase()
-                                    .contains(&self.species_filter.to_lowercase())
-                        })
-                        .enumerate()
-                    {
-                        ui.vertical_centered_justified(|ui| {
-                            if ui.button(SPECIES[encounter.species as usize]).clicked() {
-                                let fixed_items = self.fixed_event_item.lock().unwrap();
-                                let lottery_items = self.lottery_event_items.lock().unwrap();
-                                if let Some(details) = self.details_window.as_mut() {
-                                    *details = DetailsWindow::new(
-                                        encounter,
-                                        Some(&fixed_items),
-                                        Some(&lottery_items),
-                                    );
-                                } else {
-                                    self.details_window = Some(DetailsWindow::new(
-                                        encounter,
-                                        Some(&fixed_items),
-                                        Some(&lottery_items),
-                                    ));
-                                }
-                            }
-                        });
-                        if (i + 1) % 5 == 0 {
-                            ui.end_row();
-                        }
-                    }
-                });
-        });
 
         if !ctx.input().raw.dropped_files.is_empty() {
             let files: Vec<DroppedFile> = ctx.input().raw.dropped_files.clone();
