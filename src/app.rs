@@ -10,12 +10,12 @@ use std::fs::File;
 #[cfg(not(target_arch = "wasm32"))]
 use std::io::Read;
 use std::sync::{Arc, Mutex};
-use sv_raid_reader::{ItemTable, RaidEncounter, DIFFICULTY_01};
+use sv_raid_reader::{ItemTable, RaidEncounter, DIFFICULTY_01, SPECIES};
 
 pub struct SVRaidLookup {
     pub star_level: u8,
     pub species_filter: String,
-    pub encounters: &'static [RaidEncounter],
+    pub encounters: Vec<RaidEncounter>,
     pub event_encounters: Arc<Mutex<Vec<RaidEncounter>>>,
     pub fixed_event_item: Arc<Mutex<ItemTable>>,
     pub lottery_event_items: Arc<Mutex<ItemTable>>,
@@ -27,7 +27,11 @@ impl Default for SVRaidLookup {
         Self {
             star_level: 1,
             species_filter: String::new(),
-            encounters: &DIFFICULTY_01,
+            encounters: {
+                let mut enc = DIFFICULTY_01.to_vec();
+                enc.sort_by_key(|e| SPECIES[e.species as usize]);
+                enc
+            },
             event_encounters: Arc::new(Mutex::new(vec![])),
             fixed_event_item: Arc::new(Mutex::new(ItemTable(HashMap::default()))),
             lottery_event_items: Arc::new(Mutex::new(ItemTable(HashMap::default()))),

@@ -4,6 +4,7 @@ use eframe::egui;
 use eframe::egui::Context;
 use sv_raid_reader::{
     DIFFICULTY_01, DIFFICULTY_02, DIFFICULTY_03, DIFFICULTY_04, DIFFICULTY_05, DIFFICULTY_06,
+    SPECIES,
 };
 
 pub fn mobile_top_bar(app: &mut SVRaidLookup, ctx: &Context) {
@@ -11,19 +12,29 @@ pub fn mobile_top_bar(app: &mut SVRaidLookup, ctx: &Context) {
         ui.add_space(5.0);
         ui.horizontal(|ui| {
             ui.label("Stars: ");
-            ui.radio_value(&mut app.star_level, 1, "1");
-            ui.radio_value(&mut app.star_level, 2, "2");
-            ui.radio_value(&mut app.star_level, 3, "3");
-            ui.radio_value(&mut app.star_level, 4, "4");
-            ui.radio_value(&mut app.star_level, 5, "5");
-            ui.radio_value(&mut app.star_level, 6, "6");
-            app.encounters = match app.star_level {
-                2 => &DIFFICULTY_02,
-                3 => &DIFFICULTY_03,
-                4 => &DIFFICULTY_04,
-                5 => &DIFFICULTY_05,
-                6 => &DIFFICULTY_06,
-                _ => &DIFFICULTY_01,
+            if ui.radio_value(&mut app.star_level, 1, "1").clicked() {
+                app.encounters = DIFFICULTY_01.to_vec();
+                app.encounters.sort_by_key(|e| SPECIES[e.species as usize]);
+            };
+            if ui.radio_value(&mut app.star_level, 2, "2").clicked() {
+                app.encounters = DIFFICULTY_02.to_vec();
+                app.encounters.sort_by_key(|e| SPECIES[e.species as usize]);
+            };
+            if ui.radio_value(&mut app.star_level, 3, "3").clicked() {
+                app.encounters = DIFFICULTY_03.to_vec();
+                app.encounters.sort_by_key(|e| SPECIES[e.species as usize]);
+            };
+            if ui.radio_value(&mut app.star_level, 4, "4").clicked() {
+                app.encounters = DIFFICULTY_04.to_vec();
+                app.encounters.sort_by_key(|e| SPECIES[e.species as usize]);
+            };
+            if ui.radio_value(&mut app.star_level, 5, "5").clicked() {
+                app.encounters = DIFFICULTY_05.to_vec();
+                app.encounters.sort_by_key(|e| SPECIES[e.species as usize]);
+            };
+            if ui.radio_value(&mut app.star_level, 6, "6").clicked() {
+                app.encounters = DIFFICULTY_06.to_vec();
+                app.encounters.sort_by_key(|e| SPECIES[e.species as usize]);
             };
         });
         ui.add_space(5.0);
