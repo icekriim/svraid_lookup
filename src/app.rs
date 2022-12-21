@@ -131,10 +131,10 @@ impl App for SVRaidLookup {
                             ui.vertical_centered_justified(|ui| {
                                 if ui.button(SPECIES[encounter.species as usize]).clicked() {
                                     if let Some(details) = self.details_window.as_mut() {
-                                        *details = DetailsWindow::new(encounter, None, None);
+                                        *details = DetailsWindow::new(encounter, None, None, ctx);
                                     } else {
                                         self.details_window =
-                                            Some(DetailsWindow::new(encounter, None, None));
+                                            Some(DetailsWindow::new(encounter, None, None, ctx));
                                     }
                                 }
                             });
@@ -165,12 +165,14 @@ impl App for SVRaidLookup {
                                             encounter,
                                             Some(&fixed_items),
                                             Some(&lottery_items),
+                                            ctx
                                         );
                                     } else {
                                         self.details_window = Some(DetailsWindow::new(
                                             encounter,
                                             Some(&fixed_items),
                                             Some(&lottery_items),
+                                            ctx
                                         ));
                                     }
                                 }
@@ -186,58 +188,67 @@ impl App for SVRaidLookup {
         if let Some(details) = self.details_window.as_ref() {
             egui::CentralPanel::default().show(ctx, |ui| {
                 ui.vertical_centered_justified(|ui| {
-                    egui::Grid::new("stars_levels").show(ui, |ui| {
-                        ui.label(&details.stars);
-                        ui.label(&details.level);
-                        ui.label(&details.shiny);
-                        ui.label(&details.gender);
-                        ui.label(&details.base_type);
-                        ui.label(&details.base_stats);
-                        ui.end_row();
-                    });
                     ui.horizontal(|ui| {
+                        let image = details.image.lock().unwrap();
+                        if let Some(image) = image.as_ref() {
+                            image.show(ui);
+                        }
                         ui.vertical(|ui| {
-                            ui.label("Moves: ");
-                            for mov in &details.moves {
-                                ui.label(mov);
-                            }
-                        });
-                        ui.add_space(30.0);
-                        ui.vertical(|ui| {
-                            ui.label(&details.hp);
-                            ui.label(&details.nature);
-                            ui.label(&details.iv_type);
-                            if !details.ivs.is_empty() {
-                                ui.label(&details.ivs);
-                            } else {
-                                ui.label(&details.flawless_ivs);
-                            }
-                            ui.label(&details.evs);
-                        });
-                        ui.add_space(10.0);
-                        ui.vertical(|ui| {
-                            egui::Grid::new("timing_details").show(ui, |ui| {
-                                ui.label(&details.raid_time);
-                                ui.label(&details.command_time);
+                            egui::Grid::new("stars_levels").show(ui, |ui| {
+                                ui.label(&details.stars);
+                                ui.label(&details.level);
+                                ui.label(&details.shiny);
+                                ui.label(&details.gender);
+                                ui.label(&details.base_type);
+                                ui.label(&details.base_stats);
                                 ui.end_row();
-                                ui.label(&details.shield_hp_trigger);
-                                ui.label(&details.shield_time_trigger);
-                                ui.end_row();
-                                ui.label(&details.shield_cancel_damage);
-                                ui.label(&details.shield_damage_rate);
-                                ui.end_row();
-                                ui.label(&details.shield_gem_damage_rate);
-                                ui.label(&details.shield_change_gem_damage_rate);
-                                if !details.second_shield_hp_trigger.is_empty() {
-                                    ui.end_row();
-                                    ui.label(&details.second_shield_hp_trigger);
-                                    ui.label(&details.second_shield_time_trigger);
-                                    ui.end_row();
-                                    ui.label(&details.second_shield_damage_rate);
-                                }
+                            });
+                            ui.horizontal(|ui| {
+                                ui.vertical(|ui| {
+                                    ui.label("Moves: ");
+                                    for mov in &details.moves {
+                                        ui.label(mov);
+                                    }
+                                });
+                                ui.add_space(30.0);
+                                ui.vertical(|ui| {
+                                    ui.label(&details.hp);
+                                    ui.label(&details.nature);
+                                    ui.label(&details.iv_type);
+                                    if !details.ivs.is_empty() {
+                                        ui.label(&details.ivs);
+                                    } else {
+                                        ui.label(&details.flawless_ivs);
+                                    }
+                                    ui.label(&details.evs);
+                                });
+                                ui.add_space(10.0);
+                                ui.vertical(|ui| {
+                                    egui::Grid::new("timing_details").show(ui, |ui| {
+                                        ui.label(&details.raid_time);
+                                        ui.label(&details.command_time);
+                                        ui.end_row();
+                                        ui.label(&details.shield_hp_trigger);
+                                        ui.label(&details.shield_time_trigger);
+                                        ui.end_row();
+                                        ui.label(&details.shield_cancel_damage);
+                                        ui.label(&details.shield_damage_rate);
+                                        ui.end_row();
+                                        ui.label(&details.shield_gem_damage_rate);
+                                        ui.label(&details.shield_change_gem_damage_rate);
+                                        if !details.second_shield_hp_trigger.is_empty() {
+                                            ui.end_row();
+                                            ui.label(&details.second_shield_hp_trigger);
+                                            ui.label(&details.second_shield_time_trigger);
+                                            ui.end_row();
+                                            ui.label(&details.second_shield_damage_rate);
+                                        }
+                                    });
+                                });
                             });
                         });
                     });
+
                     ui.add_space(5.0);
                     ui.separator();
                     ui.add_space(5.0);

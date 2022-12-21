@@ -8,17 +8,20 @@ edition = "2021"
 [dependencies]
 sv_raid_reader = {git = "https://github.com/SteveCookTU/sv_raid_reader.git", rev = "13acc9b" }
 ehttp = "0.2.0"
+egui_extras = { version = "0.20.0", features = ['image']}
+image = {version = "0.24.5", features = ['png']}
 
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tracing-subscriber = "0.3"
-eframe = { version = "0.19.0", features = ['wgpu'] }
+eframe = { version = "0.20.1", features = ['wgpu'] }
 
 # web:
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "0.1.6"
 tracing-wasm = "0.2"
-eframe = "0.19.0"
+eframe = "0.20.1"
+wasm-bindgen-futures = "0.4.33"
 
 
 [profile.release]

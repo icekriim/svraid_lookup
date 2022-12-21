@@ -1,3 +1,6 @@
+use eframe::egui::Context;
+use egui_extras::RetainedImage;
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use sv_raid_reader::{
     personal_table, ExtraActionTrigger, ExtraActionType, GemType, Gender, ItemTable, IvType,
@@ -37,6 +40,7 @@ pub struct DetailsWindow {
     pub command_time: String,
     pub fixed_items: Vec<String>,
     pub lottery_items: Vec<String>,
+    pub image: Arc<Mutex<Option<RetainedImage>>>,
 }
 
 impl DetailsWindow {
@@ -44,6 +48,7 @@ impl DetailsWindow {
         encounter: &RaidEncounter,
         fixed_table: Option<&ItemTable>,
         lottery_table: Option<&ItemTable>,
+        ctx: &Context,
     ) -> Self {
         let gem_type = match encounter.gem_type {
             GemType::Normal => "Normal",
@@ -254,21 +259,45 @@ impl DetailsWindow {
             })
             .collect::<Vec<_>>();
 
-        let base_stats = personal_table::SV.get_form_entry(encounter.species as usize, encounter.form as usize).stats();
+        let base_stats = personal_table::SV
+            .get_form_entry(encounter.species as usize, encounter.form as usize)
+            .stats();
         let stats_str = base_stats
             .into_iter()
             .map(|i| format!("{:0>2}", i))
             .collect::<Vec<_>>()
             .join(" - ");
 
-        let type_1 = personal_table::SV.get_form_entry(encounter.species as usize, encounter.form as usize).get_type_1();
-        let type_2 = personal_table::SV.get_form_entry(encounter.species as usize, encounter.form as usize).get_type_2();
+        let type_1 = personal_table::SV
+            .get_form_entry(encounter.species as usize, encounter.form as usize)
+            .get_type_1();
+        let type_2 = personal_table::SV
+            .get_form_entry(encounter.species as usize, encounter.form as usize)
+            .get_type_2();
 
         let base_type = if type_1 != type_2 && type_2 < TYPES.len() {
             format!("Base Type: {}/{}", TYPES[type_1], TYPES[type_2])
         } else {
             format!("Base Type: {}", TYPES[type_1])
         };
+
+        let image_url = format!("https://raw.githubusercontent.com/Lincoln-LM/sv-live-map/master/resources/sprites/{}{}.png", encounter.species, if encounter.form != 0 { format!("-{}", encounter.form) } else { "".to_string() });
+
+        let image = Arc::new(Mutex::new(None));
+
+        let image_request = ehttp::Request::get(&image_url);
+
+        let clone = image.clone();
+        let ctx = ctx.clone();
+        ehttp::fetch(image_request, move |response| {
+            if let Ok(response) = response {
+                if let Ok(image) = RetainedImage::from_image_bytes(&response.url, &response.bytes) {
+                    let mut lock = clone.lock().unwrap();
+                    *lock = Some(image);
+                    ctx.request_repaint();
+                }
+            }
+        });
 
         Self {
             species: format!("Species: {}", SPECIES[encounter.species as usize]),
@@ -324,6 +353,7 @@ impl DetailsWindow {
             command_time: format!("Command Time: {}s", encounter.game_limit),
             fixed_items,
             lottery_items,
+            image,
         }
     }
 }

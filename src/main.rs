@@ -33,10 +33,14 @@ fn main() {
     tracing_wasm::set_as_global_default();
 
     let web_options = eframe::WebOptions::default();
-    eframe::start_web(
-        "sv_raid_lookup", // hardcode it
-        web_options,
-        Box::new(|cc| Box::new(SVRaidLookup::new(cc))),
-    )
-    .expect("failed to start eframe");
+
+    wasm_bindgen_futures::spawn_local(async {
+        eframe::start_web(
+            "sv_raid_lookup", // hardcode it
+            web_options,
+            Box::new(|cc| Box::new(SVRaidLookup::new(cc))),
+        )
+        .await
+        .expect("Failed to start eframe");
+    });
 }
