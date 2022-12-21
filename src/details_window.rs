@@ -254,15 +254,15 @@ impl DetailsWindow {
             })
             .collect::<Vec<_>>();
 
-        let base_stats = personal_table::SV[encounter.species as usize].stats();
+        let base_stats = personal_table::SV.get_form_entry(encounter.species as usize, encounter.form as usize).stats();
         let stats_str = base_stats
             .into_iter()
             .map(|i| format!("{:0>2}", i))
             .collect::<Vec<_>>()
             .join(" - ");
 
-        let type_1 = personal_table::SV[encounter.species as usize].get_type_1();
-        let type_2 = personal_table::SV[encounter.species as usize].get_type_2();
+        let type_1 = personal_table::SV.get_form_entry(encounter.species as usize, encounter.form as usize).get_type_1();
+        let type_2 = personal_table::SV.get_form_entry(encounter.species as usize, encounter.form as usize).get_type_2();
 
         let base_type = if type_1 != type_2 && type_2 < TYPES.len() {
             format!("Base Type: {}/{}", TYPES[type_1], TYPES[type_2])
