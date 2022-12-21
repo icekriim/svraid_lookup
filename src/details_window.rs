@@ -77,19 +77,19 @@ impl DetailsWindow {
             Tokusei::Random123 => "Random 1/2/H",
             Tokusei::Set1 => {
                 ABILITIES[personal_table::SV
-                    .get_form_entry(encounter.species as usize, 0)
+                    .get_form_entry(encounter.species as usize, encounter.form as usize)
                     .get_ability_index(0)
                     .unwrap()]
             }
             Tokusei::Set2 => {
                 ABILITIES[personal_table::SV
-                    .get_form_entry(encounter.species as usize, 0)
+                    .get_form_entry(encounter.species as usize, encounter.form as usize)
                     .get_ability_index(1)
                     .unwrap()]
             }
             Tokusei::Set3 => {
                 ABILITIES[personal_table::SV
-                    .get_form_entry(encounter.species as usize, 0)
+                    .get_form_entry(encounter.species as usize, encounter.form as usize)
                     .get_ability_index(2)
                     .unwrap()]
             }
@@ -249,9 +249,14 @@ impl DetailsWindow {
             })
             .collect::<Vec<_>>();
 
-        let base_stats = personal_table::SV
+        let mut base_stats = personal_table::SV
             .get_form_entry(encounter.species as usize, encounter.form as usize)
             .stats();
+
+
+        base_stats.swap(3, 4);
+        base_stats.swap(4, 5);
+
         let stats_str = base_stats
             .into_iter()
             .map(|i| format!("{:0>2}", i))
