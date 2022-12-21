@@ -10,9 +10,7 @@ use std::fs::File;
 #[cfg(not(target_arch = "wasm32"))]
 use std::io::Read;
 use std::sync::{Arc, Mutex};
-use sv_raid_reader::{
-    ItemTable, RaidEncounter, DIFFICULTY_01,
-};
+use sv_raid_reader::{ItemTable, RaidEncounter, DIFFICULTY_01};
 
 pub struct SVRaidLookup {
     pub star_level: u8,

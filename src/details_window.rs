@@ -253,7 +253,6 @@ impl DetailsWindow {
             .get_form_entry(encounter.species as usize, encounter.form as usize)
             .stats();
 
-
         base_stats.swap(3, 4);
         base_stats.swap(4, 5);
 

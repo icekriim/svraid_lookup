@@ -2,7 +2,9 @@ use crate::app::SVRaidLookup;
 use crate::encounter_grid::encounter_grid;
 use eframe::egui;
 use eframe::egui::Context;
-use sv_raid_reader::{DIFFICULTY_01, DIFFICULTY_02, DIFFICULTY_03, DIFFICULTY_04, DIFFICULTY_05, DIFFICULTY_06};
+use sv_raid_reader::{
+    DIFFICULTY_01, DIFFICULTY_02, DIFFICULTY_03, DIFFICULTY_04, DIFFICULTY_05, DIFFICULTY_06,
+};
 
 pub fn mobile_top_bar(app: &mut SVRaidLookup, ctx: &Context) {
     egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
