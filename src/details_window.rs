@@ -35,11 +35,11 @@ pub struct DetailsWindow {
     pub second_shield_hp_trigger: String,
     pub second_shield_time_trigger: String,
     pub second_shield_damage_rate: String,
-    pub extra_actions: [String; 6],
+    pub extra_actions: [(String, String); 6],
     pub raid_time: String,
     pub command_time: String,
     pub fixed_items: Vec<String>,
-    pub lottery_items: Vec<String>,
+    pub lottery_items: Vec<(String, String)>,
     pub image: Arc<Mutex<Option<RetainedImage>>>,
 }
 
@@ -136,12 +136,12 @@ impl DetailsWindow {
                 .ceil();
 
         let mut extra_actions = [
-            "".to_string(),
-            "".to_string(),
-            "".to_string(),
-            "".to_string(),
-            "".to_string(),
-            "".to_string(),
+            ("".to_string(), "".to_string()),
+            ("".to_string(), "".to_string()),
+            ("".to_string(), "".to_string()),
+            ("".to_string(), "".to_string()),
+            ("".to_string(), "".to_string()),
+            ("".to_string(), "".to_string()),
         ];
 
         for (i, action) in encounter.extra_actions.iter().enumerate() {
@@ -158,11 +158,6 @@ impl DetailsWindow {
                 ExtraActionType::Move => "Move",
                 ExtraActionType::GemCount => "Tera Reset",
             };
-            let trigger = match action.trigger {
-                ExtraActionTrigger::None => "None",
-                ExtraActionTrigger::Time => "Time",
-                ExtraActionTrigger::Hp => "HP",
-            };
             let value = match action.trigger {
                 ExtraActionTrigger::None | ExtraActionTrigger::Hp => {
                     format!("{}% HP", action.value)
@@ -174,17 +169,12 @@ impl DetailsWindow {
                 }
             };
             let move_name = action.move_no.map(|i| MOVES[i as usize]).unwrap_or("");
-            extra_actions[i] = format!(
-                "Type: {}\nTrigger: {}\nAt: {}{}",
-                action_type,
-                trigger,
-                value,
-                if move_name.is_empty() || action.value == 0 {
-                    "".to_string()
-                } else {
-                    format!(" Move: {}", move_name)
-                }
-            );
+            extra_actions[i].0 = format!("At: {}", value,);
+            extra_actions[i].1 = if action_type == "Move" {
+                format!("Move: {}", move_name)
+            } else {
+                format!("{}", action_type)
+            };
         }
 
         let shiny = match encounter.shiny {
@@ -226,7 +216,7 @@ impl DetailsWindow {
                     0xFFFE => "Tera Shard(s)",
                     _ => ITEMS[i.id as usize],
                 };
-                format!("Item: {}\nAmount: {}\n", item, i.amount)
+                format!(" - {} x{}", item, i.amount)
             })
             .collect::<Vec<_>>();
 
@@ -252,9 +242,9 @@ impl DetailsWindow {
                     0xFFFE => "Tera Shard(s)",
                     _ => ITEMS[i.id as usize],
                 };
-                format!(
-                    "Item: {}\nAmount: {}\nRate: {:.2}%\n",
-                    item, i.amount, i.probability
+                (
+                    format!("{} x{}", item, i.amount,),
+                    format!("Rate: {:.2}%", i.probability),
                 )
             })
             .collect::<Vec<_>>();
