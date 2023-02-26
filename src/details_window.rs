@@ -328,7 +328,7 @@ impl DetailsWindow {
             ),
             shield_change_gem_damage_rate: format!(
                 "Shield Change Gem Damage Rate: {}%",
-                encounter.shield_gem_damage_rate
+                encounter.shield_change_gem_damage_rate
             ),
             second_shield_hp_trigger: format!(
                 "Second Shield Trigger HP: {}%",
