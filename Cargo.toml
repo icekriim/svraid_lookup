@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sv_raid_reader = {git = "https://github.com/SteveCookTU/sv_raid_reader.git", rev = "d125db0" }
+sv_raid_reader = {git = "https://github.com/SteveCookTU/sv_raid_reader.git", rev = "5b1ff19" }
 ehttp = "0.2.0"
 egui_extras = { version = "0.20.0", features = ['image']}
 image = {version = "0.24.5", features = ['png']}
