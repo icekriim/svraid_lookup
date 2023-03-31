@@ -6,27 +6,22 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sv_raid_reader = {git = "https://github.com/SteveCookTU/sv_raid_reader.git", rev = "3520aad" }
+sv_raid_reader = {git = "https://github.com/SteveCookTU/sv_raid_reader.git", rev = "5b1ff19" }
 ehttp = "0.2.0"
-egui_extras = { version = "0.21.0", features = ['image']}
+egui_extras = { version = "0.20.0", features = ['image']}
 image = {version = "0.24.5", features = ['png']}
 
 # native:
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 tracing-subscriber = "0.3"
-eframe = { version = "0.21.2", features = ['wgpu'] }
+eframe = { version = "0.20.1", features = ['wgpu'] }
 
 # web:
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "0.1.6"
 tracing-wasm = "0.2"
-eframe = "0.21.2"
+eframe = "0.20.1"
 wasm-bindgen-futures = "0.4.33"
-wasm-bindgen = {version = "0.2.84", optional = true }
-
-[features]
-default = ["truffle"]
-truffle = ["wasm-bindgen"]
 
 
 [profile.release]

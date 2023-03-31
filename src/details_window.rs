@@ -185,7 +185,7 @@ impl DetailsWindow {
 
         let nature = match encounter.seikaku {
             Seikaku::Random => "Random",
-            i => NATURES[(i - 1) as usize],
+            i => NATURES[i as usize],
         };
 
         let gender = match encounter.gender {
