@@ -2157,7 +2157,7 @@ dependencies = [
 [[package]]
 name = "sv_raid_reader"
 version = "0.1.0"
-source = "git+https://github.com/SteveCookTU/sv_raid_reader.git?rev=28bf898#28bf8987b396b4bf9316944fd8a531c28360e460"
+source = "git+https://github.com/SteveCookTU/sv_raid_reader.git?rev=82433d1#82433d10a74369d2d34d1029c605ce8560d9edb6"
 dependencies = [
  "flatbuffers",
  "lazy_static",

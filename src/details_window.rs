@@ -2,11 +2,7 @@ use eframe::egui::Context;
 use egui_extras::RetainedImage;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
-use sv_raid_reader::{
-    personal_table, ExtraActionTrigger, ExtraActionType, GemType, Gender, ItemTable, IvType,
-    PersonalInfo, RaidEncounter, Seikaku, ShinyType, Tokusei, ABILITIES, FIXED_ITEMS, ITEMS,
-    LOTTERY_ITEMS, MOVES, NATURES, SPECIES, TYPES,
-};
+use sv_raid_reader::{personal_table, ExtraActionTrigger, ExtraActionType, GemType, Gender, ItemTable, IvType, PersonalInfo, RaidEncounter, Seikaku, ShinyType, Tokusei, ABILITIES, FIXED_ITEMS, ITEMS, LOTTERY_ITEMS, MOVES, NATURES, SPECIES, TYPES, ItemSubject};
 
 #[derive(Clone)]
 pub struct DetailsWindow {
@@ -214,7 +210,13 @@ impl DetailsWindow {
                     0xFFFE => "Tera Shard(s)",
                     _ => ITEMS[i.id as usize],
                 };
-                format!(" - {} x{}", item, i.amount)
+                let subject = match i.subject {
+                    ItemSubject::All => "",
+                    ItemSubject::Host => " (Host)",
+                    ItemSubject::Guest => " (Guest)",
+                    ItemSubject::Once => " (Once)",
+                };
+                format!(" - {item} x{}{subject}", i.amount)
             })
             .collect::<Vec<_>>();
 
@@ -241,7 +243,7 @@ impl DetailsWindow {
                     _ => ITEMS[i.id as usize],
                 };
                 (
-                    format!("{} x{}", item, i.amount,),
+                    format!("{item} x{}", i.amount,),
                     format!("Rate: {:.2}%", i.probability),
                 )
             })
