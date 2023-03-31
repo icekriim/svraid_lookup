@@ -72,7 +72,7 @@ impl App for SVRaidLookup {
                             ui.label(&details.hp);
                             ui.label(&details.shiny);
                             ui.end_row();
-                            ui.label(&details.flawless_ivs);
+                            ui.label(&details.ivs);
                             ui.label(&details.gender);
                             ui.end_row();
                             ui.label(&details.evs);

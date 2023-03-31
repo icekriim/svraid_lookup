@@ -19,7 +19,6 @@ pub struct DetailsWindow {
     pub ability: String,
     pub nature: String,
     pub gender: String,
-    pub flawless_ivs: String,
     pub iv_type: String,
     pub ivs: String,
     pub evs: String,
@@ -102,8 +101,7 @@ impl DetailsWindow {
         };
 
         let ivs = match encounter.iv_type {
-            IvType::Random => "".to_string(),
-            IvType::VNum => "".to_string(),
+            IvType::Random | IvType::VNum  => format!("Flawless IVs: {}", encounter.flawless_ivs),
             IvType::Value => {
                 let ivs = encounter
                     .ivs
@@ -308,7 +306,6 @@ impl DetailsWindow {
             ability: format!("Ability: {}", ability),
             nature: format!("Nature: {}", nature),
             gender: format!("Gender: {}", gender),
-            flawless_ivs: format!("Flawless IVs: {}", encounter.flawless_ivs),
             iv_type: format!("IV Type: {}", iv_type),
             ivs,
             evs,
