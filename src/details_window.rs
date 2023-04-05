@@ -25,7 +25,7 @@ pub struct DetailsWindow {
 
 impl DetailsWindow {
     pub fn new(encounter: &RaidEncounter, ctx: &Context) -> Self {
-        let gem_type = match encounter.gem_type {
+        let _gem_type = match encounter.gem_type {
             GemType::Normal => "Normal",
             GemType::Fighting => "Fighting",
             GemType::Flying => "Flying",
