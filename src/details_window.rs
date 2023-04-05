@@ -1,8 +1,13 @@
 use eframe::egui::Context;
+#[allow(unused_imports)]
 use egui_extras::RetainedImage;
 use std::sync::{Arc, Mutex};
 #[allow(unused_imports)]
-use sv_raid_reader::{personal_table, ExtraActionTrigger, ExtraActionType, GemType, Gender, ItemTable, IvType, PersonalInfo, RaidEncounter, Seikaku, ShinyType, Tokusei, ABILITIES, ITEMS, LOTTERY_ITEMS, NATURES, SPECIES, TYPES, ItemSubject};
+use sv_raid_reader::{
+    personal_table, ExtraActionTrigger, ExtraActionType, GemType, Gender, ItemSubject, ItemTable,
+    IvType, PersonalInfo, RaidEncounter, Seikaku, ShinyType, Tokusei, ABILITIES, ITEMS,
+    LOTTERY_ITEMS, NATURES, SPECIES, TYPES,
+};
 
 #[derive(Clone)]
 pub struct DetailsWindow {
@@ -23,10 +28,7 @@ pub struct DetailsWindow {
 }
 
 impl DetailsWindow {
-    pub fn new(
-        encounter: &RaidEncounter,
-        ctx: &Context,
-    ) -> Self {
+    pub fn new(encounter: &RaidEncounter, ctx: &Context) -> Self {
         let gem_type = match encounter.gem_type {
             GemType::Normal => "Normal",
             GemType::Fighting => "Fighting",
@@ -79,7 +81,7 @@ impl DetailsWindow {
         };
 
         let ivs = match encounter.iv_type {
-            IvType::Random | IvType::VNum  => format!("Flawless IVs: {}", encounter.flawless_ivs),
+            IvType::Random | IvType::VNum => format!("Flawless IVs: {}", encounter.flawless_ivs),
             IvType::Value => {
                 let ivs = encounter
                     .ivs

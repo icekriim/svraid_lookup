@@ -24,8 +24,7 @@ pub fn encounter_grid(app: &mut SVRaidLookup, ui: &mut Ui, ctx: &Context) {
                         if let Some(details) = app.details_window.as_mut() {
                             *details = DetailsWindow::new(encounter, ctx);
                         } else {
-                            app.details_window =
-                                Some(DetailsWindow::new(encounter, ctx));
+                            app.details_window = Some(DetailsWindow::new(encounter, ctx));
                         }
                     }
                 });
@@ -46,7 +45,6 @@ pub fn encounter_grid(app: &mut SVRaidLookup, ui: &mut Ui, ctx: &Context) {
                             .contains(&app.species_filter.to_lowercase())
                 })
                 .enumerate()
-            {
-            }
+            {}
         });
 }

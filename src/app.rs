@@ -80,8 +80,7 @@ impl App for SVRaidLookup {
                 ui.add_space(5.0);
                 ui.separator();
                 ui.add_space(5.0);
-                egui::ScrollArea::both().show(ui, |_ui| {
-                });
+                egui::ScrollArea::both().show(ui, |_ui| {});
             });
         }
 
