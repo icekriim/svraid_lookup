@@ -2,8 +2,8 @@ var cacheName = 'sv-raid-lookup-pwa';
 var filesToCache = [
   './',
   './index.html',
-  './sv_raid_lookup.js',
-  './sv_raid_lookup_bg.wasm',
+  './svraid_lookup.js',
+  './svraid_lookup_bg.wasm',
 ];
 
 /* Start the service worker and cache all of the app's content */

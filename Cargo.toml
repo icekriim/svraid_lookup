@@ -1,5 +1,5 @@
 [package]
-name = "sv_raid_lookup"
+name = "svraid_lookup"
 version = "0.1.0"
 edition = "2021"
 
