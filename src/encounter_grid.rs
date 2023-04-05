@@ -22,10 +22,10 @@ pub fn encounter_grid(app: &mut SVRaidLookup, ui: &mut Ui, ctx: &Context) {
                 ui.vertical_centered_justified(|ui| {
                     if ui.button(SPECIES[encounter.species as usize]).clicked() {
                         if let Some(details) = app.details_window.as_mut() {
-                            *details = DetailsWindow::new(encounter, None, None, ctx);
+                            *details = DetailsWindow::new(encounter, ctx);
                         } else {
                             app.details_window =
-                                Some(DetailsWindow::new(encounter, None, None, ctx));
+                                Some(DetailsWindow::new(encounter, ctx));
                         }
                     }
                 });
@@ -34,7 +34,7 @@ pub fn encounter_grid(app: &mut SVRaidLookup, ui: &mut Ui, ctx: &Context) {
                 }
             }
             ui.end_row();
-            for (i, encounter) in app
+            for (_i, _encounter) in app
                 .event_encounters
                 .lock()
                 .unwrap()
@@ -47,30 +47,6 @@ pub fn encounter_grid(app: &mut SVRaidLookup, ui: &mut Ui, ctx: &Context) {
                 })
                 .enumerate()
             {
-                ui.vertical_centered_justified(|ui| {
-                    if ui.button(SPECIES[encounter.species as usize]).clicked() {
-                        let fixed_items = app.fixed_event_item.lock().unwrap();
-                        let lottery_items = app.lottery_event_items.lock().unwrap();
-                        if let Some(details) = app.details_window.as_mut() {
-                            *details = DetailsWindow::new(
-                                encounter,
-                                Some(&fixed_items),
-                                Some(&lottery_items),
-                                ctx,
-                            );
-                        } else {
-                            app.details_window = Some(DetailsWindow::new(
-                                encounter,
-                                Some(&fixed_items),
-                                Some(&lottery_items),
-                                ctx,
-                            ));
-                        }
-                    }
-                });
-                if (i + 1) % 2 == 0 {
-                    ui.end_row();
-                }
             }
         });
 }

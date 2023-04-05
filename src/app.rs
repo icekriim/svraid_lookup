@@ -67,70 +67,20 @@ impl App for SVRaidLookup {
                         ui.label(&details.base_stats);
                         egui::Grid::new("stars_levels").show(ui, |ui| {
                             ui.label(&details.level);
-                            ui.label(&details.stars);
-                            ui.end_row();
                             ui.label(&details.hp);
-                            ui.label(&details.shiny);
                             ui.end_row();
-                            ui.label(&details.ivs);
+                            ui.label(&details.stars);
                             ui.label(&details.gender);
                             ui.end_row();
-                            ui.label(&details.evs);
                             ui.label(&details.nature);
-                            ui.end_row();
                             ui.label(&details.ability);
-                            ui.label(&details.iv_type);
                         });
                     });
                 });
                 ui.add_space(5.0);
                 ui.separator();
                 ui.add_space(5.0);
-                egui::ScrollArea::both().show(ui, |ui| {
-                    ui.horizontal(|ui| {
-                        ui.vertical(|ui| {
-                            ui.label(egui::RichText::new("Moves:").underline());
-                            for mov in &details.moves {
-                                ui.label(mov);
-                            }
-                            ui.add_space(10.0);
-                            ui.label(egui::RichText::new("Actions:").underline());
-                            egui::Grid::new("actions").show(ui, |ui| {
-                                for extra_action in &details.extra_actions {
-                                    ui.label(&extra_action.0);
-                                    ui.label(&extra_action.1);
-                                    ui.end_row();
-                                }
-                            });
-                            ui.add_space(10.0);
-                            ui.label(&details.raid_time);
-                            ui.label(&details.shield_hp_trigger);
-                            ui.label(&details.shield_time_trigger);
-                            ui.label(&details.shield_cancel_damage);
-                            ui.label(&details.shield_damage_rate);
-                            ui.label(&details.shield_gem_damage_rate);
-                            ui.label(&details.shield_change_gem_damage_rate);
-                            ui.label(&details.second_shield_hp_trigger);
-                            ui.label(&details.second_shield_time_trigger);
-                            ui.label(&details.second_shield_damage_rate);
-                            ui.label(&details.command_time);
-                        });
-                        ui.vertical(|ui| {
-                            ui.label(egui::RichText::new("Fixed Items:").underline());
-                            for fixed_item in &details.fixed_items {
-                                ui.label(fixed_item);
-                            }
-                            ui.add_space(10.0);
-                            ui.label(egui::RichText::new("Random Items:").underline());
-                            egui::Grid::new("random_items").show(ui, |ui| {
-                                for lottery_item in &details.lottery_items {
-                                    ui.label(&lottery_item.0);
-                                    ui.label(&lottery_item.1);
-                                    ui.end_row();
-                                }
-                            });
-                        });
-                    });
+                egui::ScrollArea::both().show(ui, |_ui| {
                 });
             });
         }
