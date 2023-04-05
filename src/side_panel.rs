@@ -35,10 +35,7 @@ pub fn draw_side_panel(app: &mut SVRaidLookup, ctx: &Context) {
             });
         });
         ui.add_space(15.0);
-        ui.vertical_centered_justified(|ui| {
-            if ui.button("Item Farming Raid").clicked() {
-            }
-        });
+        ui.vertical_centered_justified(|ui| if ui.button("Item Farming Raid").clicked() {});
 
         ui.add_space(15.0);
 
