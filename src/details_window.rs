@@ -142,7 +142,7 @@ impl DetailsWindow {
 
         let image = Arc::new(Mutex::new(None));
 
-        let image_request = ehttp::Request::get(&image_url);
+        let image_request = ehttp::Request::get(image_url);
 
         let clone = image.clone();
         let ctx = ctx.clone();
