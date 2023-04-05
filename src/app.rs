@@ -10,7 +10,7 @@ use std::fs::File;
 #[cfg(not(target_arch = "wasm32"))]
 use std::io::Read;
 use std::sync::{Arc, Mutex};
-use sv_raid_reader::{ItemTable, RaidEncounter, DIFFICULTY_01, SPECIES};
+use sv_raid_reader::{ItemTable, RaidEncounter, DIFFICULTY_06, SPECIES};
 
 pub struct SVRaidLookup {
     pub star_level: u8,
@@ -25,10 +25,10 @@ pub struct SVRaidLookup {
 impl Default for SVRaidLookup {
     fn default() -> Self {
         Self {
-            star_level: 1,
+            star_level: 6,
             species_filter: String::new(),
             encounters: {
-                let mut enc = DIFFICULTY_01.to_vec();
+                let mut enc = DIFFICULTY_06.to_vec();
                 enc.sort_by_key(|e| SPECIES[e.species as usize]);
                 enc
             },
