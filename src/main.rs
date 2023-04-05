@@ -2,7 +2,7 @@
 #[cfg(not(target_arch = "wasm32"))]
 use eframe::Renderer;
 
-use sv_raid_lookup::app::SVRaidLookup;
+use svraid_lookup::app::SVRaidLookup;
 
 // When compiling natively:
 #[cfg(not(target_arch = "wasm32"))]
@@ -36,7 +36,7 @@ fn main() {
 
     wasm_bindgen_futures::spawn_local(async {
         eframe::start_web(
-            "sv_raid_lookup", // hardcode it
+            "svraid_lookup", // hardcode it
             web_options,
             Box::new(|cc| Box::new(SVRaidLookup::new(cc))),
         )
