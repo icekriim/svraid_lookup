@@ -74,35 +74,6 @@ impl DetailsWindow {
             }
         };
 
-        let iv_type = match encounter.iv_type {
-            IvType::Random => "Random",
-            IvType::VNum => "Variable Flawless",
-            IvType::Value => "Set",
-        };
-
-        let ivs = match encounter.iv_type {
-            IvType::Random | IvType::VNum => format!("Flawless IVs: {}", encounter.flawless_ivs),
-            IvType::Value => {
-                let ivs = encounter
-                    .ivs
-                    .iter()
-                    .map(|i| format!("{:0>2}", i))
-                    .collect::<Vec<_>>()
-                    .join("/");
-                format!("IVs: {}", ivs)
-            }
-        };
-
-        let evs = {
-            let evs = encounter
-                .evs
-                .iter()
-                .map(|i| format!("{:0>2}", i))
-                .collect::<Vec<_>>()
-                .join("/");
-            format!("EVs: {}", evs)
-        };
-
         let nature = match encounter.seikaku {
             Seikaku::Random => "Random",
             i => NATURES[i as usize - 1],
@@ -162,13 +133,9 @@ impl DetailsWindow {
             species: format!("Species: {}", SPECIES[encounter.species as usize]),
             level: format!("Raid Level: {}", encounter.level),
             stars: format!("Stars: {}", encounter.difficulty),
-            gem_type: format!("Tera Type: {}", gem_type),
             ability: format!("Ability: {}", ability),
             nature: format!("Nature: {}", nature),
             gender: format!("Gender: {}", gender),
-            iv_type: format!("IV Type: {}", iv_type),
-            ivs,
-            evs,
             hp: format!("HP: {}", encounter.hp_coef),
             base_stats: format!("Base Stats: {}", stats_str),
             base_type,
